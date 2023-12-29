@@ -4,20 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Cars {
     public static void main(String[] args) throws IOException {
@@ -30,14 +20,14 @@ public class Cars {
     public static OperationOptimizer readInputData(InputStream is) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
-        String[]      counts         = reader.readLine().split(" ");
-        int           carsCount      = Integer.parseInt(counts[0]);
-        int           floorCarsCount = Integer.parseInt(counts[1]);
-        int           orderCount     = Integer.parseInt(counts[2]);
-        List<Integer> carsOrder      = new ArrayList<>();
+        String[] counts         = reader.readLine().split(" ");
+        int      carsCount      = Integer.parseInt(counts[0]);
+        int      floorCarsCount = Integer.parseInt(counts[1]);
+        int      orderCount     = Integer.parseInt(counts[2]);
+        int[]    carsOrder      = new int[orderCount];
         for (int i = 0; i < orderCount; i++) {
             String line = reader.readLine();
-            carsOrder.add(Integer.parseInt(line));
+            carsOrder[i] = Integer.parseInt(line);
         }
 
         reader.close();
@@ -46,85 +36,47 @@ public class Cars {
     }
 
     public static class OperationOptimizer {
+        private final int   floorCarsCount;
+        private final int[] carsOrder;
 
-
-        private final int           floorCarsCount;
-        private final List<Integer> carsOrder;
-
-        private final Set<Integer> carsOnTheFloor = new HashSet<>();
-
-        private final HashMap<Integer, Integer> carsPriorities;
-
-        public OperationOptimizer(int floorCarsCount, List<Integer> carsOrder) {
+        public OperationOptimizer(int floorCarsCount, int[] carsOrder) {
             this.floorCarsCount = floorCarsCount;
             this.carsOrder = carsOrder;
-            normalizeCarsOrder();
-            HashMap<Integer, Integer>  priorities = new HashMap<>();
-            for (Integer car : carsOrder) {
-                Integer priority = priorities.getOrDefault(car, 0);
-                priority++;
-                priorities.put(car, priority);
+        }
+
+        public int getMinOps(int minOps, int startIndex, Set<Integer> carsOnTheFloor) {
+            if (startIndex == carsOrder.length) {
+                return minOps;
             }
-            this.carsPriorities = priorities;
+
+            int          car  = carsOrder[startIndex];
+            Set<Integer> copy = new HashSet<>(carsOnTheFloor);
+
+            if (!copy.contains(car)) {
+                if (copy.size() < floorCarsCount) {
+                    copy.add(car);
+                    return getMinOps(minOps + 1, startIndex + 1, copy);
+                } else {
+                    int minReturnedOps = -1;
+                    for (Integer item : carsOnTheFloor) {
+                        copy = new HashSet<>(carsOnTheFloor);
+                        copy.remove(item);
+                        copy.add(car);
+                        int ops = getMinOps(minOps + 1, startIndex + 1, copy);
+                        if (minReturnedOps == -1 || ops < minReturnedOps) {
+                            minReturnedOps = ops;
+                        }
+                    }
+                    return minReturnedOps;
+                }
+            }
+
+            return getMinOps(minOps, startIndex + 1, copy);
         }
 
         public int getMinOperations() {
-            int minOps = 0;
-
-            for (int i = 0; i < carsOrder.size(); i += floorCarsCount) {
-                int          step   = i + floorCarsCount <= carsOrder.size() ? floorCarsCount : carsOrder.size() - i;
-                List<Integer> subArray = carsOrder.subList(i, i + step);
-                Set<Integer> subSet = new HashSet<>(subArray);
-                Set<Integer> intersection = new HashSet<>(carsOnTheFloor);
-                intersection.removeAll(subSet);
-                subSet.removeAll(carsOnTheFloor);
-                int ops = subSet.size();
-                if (ops > 0) {
-                    List<Integer> carsForRemoving = getCarsToPutOnTheShelf(intersection);
-                    for (int j = 0; j < Math.min(ops, intersection.size()); j++ ) {
-                        int car = carsForRemoving.get(j);
-                        carsOnTheFloor.remove(car);
-                    }
-
-                    carsOnTheFloor.addAll(subSet);
-                    minOps += ops;
-                }
-
-                subArray = carsOrder.subList(i, i + step);
-                for (Integer car : subArray) {
-                    carsPriorities.put(car, carsPriorities.get(car) - 1);
-                }
-            }
-
-            return minOps;
-        }
-
-        private List<Integer> getCarsToPutOnTheShelf(Set<Integer> cars) {
-            HashMap<Integer, Integer> floorPriorities = new HashMap<>();
-
-            for (int car : cars) {
-                floorPriorities.put(car, carsPriorities.get(car));
-            }
-
-            List<Map.Entry<Integer, Integer>>       entries         = new ArrayList<>(floorPriorities.entrySet());
-            Comparator<Map.Entry<Integer, Integer>> valueComparator = Map.Entry.comparingByValue();
-            entries.sort(valueComparator);
-            return entries.stream().map(Map.Entry::getKey).toList();
-        }
-
-        private void normalizeCarsOrder() {
-            int size = carsOrder.size();
-
-            for (int i = size - 1; i > 0; i--) {
-                if (carsOrder.get(i).equals(carsOrder.get(i - 1))) {
-                    carsOrder.remove(i);
-                }
-            }        }
-
-        private void addCarrOnTheFloor(int car) {
-            carsOnTheFloor.add(car);
+            return getMinOps(0, 0, new HashSet<>());
         }
 
     }
-
 }
