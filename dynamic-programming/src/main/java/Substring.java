@@ -11,39 +11,45 @@ import java.util.Map;
 public class Substring {
 
     public static void main(String[] args) throws IOException {
-        Input input = readInputData(System.in);
-        Map.Entry<Integer, Integer> entry = getMaxSubSequence(input.charSequence, input.n, input.k);
-        BufferedWriter                     writer = new BufferedWriter(new OutputStreamWriter(System.out));
+        Input                       input  = readInputData(System.in);
+        Map.Entry<Integer, Integer> entry  = getMaxSubSequence(input.charSequence, input.n, input.k);
+        BufferedWriter              writer = new BufferedWriter(new OutputStreamWriter(System.out));
         writer.write(entry.getKey() + " " + entry.getValue());
         writer.close();
     }
 
-    public static Map.Entry<Integer, Integer> getMaxSubSequence(char[] seq,int n, int k) {
-        int length = 0;
-        int index = 0;
-        for (int i = 0; i < n; i++) {
-            int startSubSec = i;
-            int endSubSec = i;
-            Map<Character, Integer> dict = new HashMap<>();
-            Map<Character, Integer> positions = new HashMap<>();
-            while (endSubSec < n) {
-                char symbol = seq[endSubSec];
-                positions.putIfAbsent(symbol, endSubSec);
-                int count = dict.getOrDefault(symbol, 0);
-                if (count < k) {
-                    dict.put(symbol, ++count);
-                    int subSecLength = endSubSec - startSubSec + 1;
-                    if (length < subSecLength) {
-                        length = subSecLength;
-                        index = startSubSec;
-                    }
-                } else {
-                    dict.clear();
-                    dict.put(symbol, 1);
-                    startSubSec = endSubSec;
+    /**
+     * In this problem you need to find the maximum length substring of a given
+     * string such that each character appears in it no more than k times.
+     *
+     * Time: O(n)
+     * Memory: O(n)
+     */
+    public static Map.Entry<Integer, Integer> getMaxSubSequence(char[] seq, int n, int k) {
+        int                     length      = 0;
+        int                     index       = 0;
+        int                     startSubSec = 0;
+        int                     i           = 0;
+        Map<Character, Integer> dict        = new HashMap<>();
+        Map<Character, Integer> positions   = new HashMap<>();
+        while (i < n) {
+            char symbol = seq[i];
+            positions.putIfAbsent(symbol, i);
+            int count = dict.getOrDefault(symbol, 0);
+            if (count < k) {
+                dict.put(symbol, ++count);
+                int subSecLength = i - startSubSec + 1;
+                if (length < subSecLength) {
+                    length = subSecLength;
+                    index = startSubSec;
                 }
-                endSubSec++;
+            } else {
+                dict.clear();
+                i = positions.get(symbol);
+                startSubSec = i + 1;
+                positions.clear();
             }
+            i++;
         }
         return new AbstractMap.SimpleEntry<>(length, index + 1);
     }
@@ -53,17 +59,17 @@ public class Substring {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
         String[] numbers = reader.readLine().split(" ");
-        int n = Integer.parseInt(numbers[0]);
-        int k = Integer.parseInt(numbers[1]);
-        char[] s =  reader.readLine().toCharArray();
+        int      n       = Integer.parseInt(numbers[0]);
+        int      k       = Integer.parseInt(numbers[1]);
+        char[]   s       = reader.readLine().toCharArray();
         reader.close();
 
         return new Input(n, k, s);
     }
 
-    static class Input{
-        int n;
-        int k;
+    static class Input {
+        int    n;
+        int    k;
         char[] charSequence;
 
         public Input(int n, int k, char[] charSequence) {
@@ -72,9 +78,4 @@ public class Substring {
             this.charSequence = charSequence;
         }
     }
-
-
-
-
-
 }
