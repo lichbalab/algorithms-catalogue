@@ -178,7 +178,7 @@ public class AVLTreeCustomMemoryManagerEncDec {
 
     static class CustomMemoryManager {
         private final AVLNode[] memory;
-        private int       freeListHead; // Points to the first free index
+        private       int       freeListHead; // Points to the first free index
 
         public CustomMemoryManager(int capacity) {
             memory = new AVLNode[capacity];
@@ -192,8 +192,8 @@ public class AVLTreeCustomMemoryManagerEncDec {
             if (freeListHead == -1) {
                 throw new RuntimeException("Out of memory");
             }
-            int     nextFree       = memory[freeListHead].leftIndex;
-            int     allocatedIndex = freeListHead;
+            int nextFree       = memory[freeListHead].leftIndex;
+            int allocatedIndex = freeListHead;
             freeListHead = nextFree;
             return allocatedIndex;
         }
@@ -234,7 +234,7 @@ public class AVLTreeCustomMemoryManagerEncDec {
         }
 
         private int createAndFillNode(int value) {
-            int index = memoryManager.allocateNode();
+            int     index   = memoryManager.allocateNode();
             AVLNode newNode = memoryManager.getNode(index);
             newNode.value = value;
             newNode.leftIndex = -1;
@@ -311,25 +311,9 @@ public class AVLTreeCustomMemoryManagerEncDec {
                 index[0] = node.count;
                 // Node with only one child or no child
                 if (node.leftIndex == -1 || node.rightIndex == -1) {
-                    //nodeIndex = node.leftIndex != -1 ? node.leftIndex : node.rightIndex;
-
                     int tempIndex = node.leftIndex != -1 ? node.leftIndex : node.rightIndex;
                     memoryManager.deallocateNode(nodeIndex);
-                    nodeIndex =  tempIndex;
-/*
-                    if (tempIndex == -1) { // No child
-                        tempIndex = nodeIndex;
-                        nodeIndex = -1; // This node will be deleted
-                        memoryManager.deallocateNode(tempIndex);
-                    } else { // One child
-                        memoryManager.deallocateNode(nodeIndex);
-                        nodeIndex = tempIndex;
-                        //memoryManager.getNode(nodeIndex);
-                    }
-*/
-                    //memoryManager.deallocateNode(tempIndex); // Deallocate the node
-                    //memoryManager.deallocateNode(tempIndex); // Deallocate the node
-
+                    nodeIndex = tempIndex;
                 } else {
                     // Node with two children: Get the inorder successor
                     int     tempIndex = minValueNode(node.rightIndex);
@@ -402,9 +386,6 @@ public class AVLTreeCustomMemoryManagerEncDec {
             updateNodeHeightAndSize(yIndex);
             updateNodeHeightAndSize(xIndex);
 
-            //memoryManager.setNode(yIndex, y);
-            //memoryManager.setNode(xIndex, x);
-
             return xIndex; // New root after rotation
         }
 
@@ -421,9 +402,6 @@ public class AVLTreeCustomMemoryManagerEncDec {
             // Update heights and sizes
             updateNodeHeightAndSize(xIndex);
             updateNodeHeightAndSize(yIndex);
-
-            //memoryManager.setNode(xIndex, x);
-            //memoryManager.setNode(yIndex, y);
 
             return yIndex; // New root after rotation
         }
@@ -480,20 +458,13 @@ public class AVLTreeCustomMemoryManagerEncDec {
             return node.value; // The target position matches the current node
         }
 
-        // Method to remove a node by its position in the sorted order
-/*
-        public void removeAtPosition(int position) {
-            rootIndex = removeAtPositionRecursive(rootIndex, position);
-        }
-*/
-
         private int removeAtPositionRecursive(int nodeIndex, int position, int[] currentPosition) {
             if (nodeIndex == -1) {
                 return -1; // Base case: node not found
             }
 
-            AVLNode node        = memoryManager.getNode(nodeIndex);
-            int     leftSize    = size(node.leftIndex);
+            AVLNode node     = memoryManager.getNode(nodeIndex);
+            int     leftSize = size(node.leftIndex);
 
             if (position < leftSize) {
                 // The node to be removed is in the left subtree
