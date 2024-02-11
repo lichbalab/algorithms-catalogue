@@ -15,11 +15,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
-class EncryptionTest {
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class AVLTreeCustomMemoryManagerEncDecTest {
+
+    static final String TEST_DIR = "mtf-encoding-decoding";
+    static final String BASE_DIR = "src/test/resources/" + TEST_DIR;
+
+    static PrintStream ps = System.out;
 
     @Test
+    @Order(1)
     void testAlgorithm() throws IOException {
         List<File> files = readFiles();
         for (File file : files) {
@@ -28,7 +38,7 @@ class EncryptionTest {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 System.setOut(new PrintStream(outputStream));
 
-                Encryption.main(new String[]{});
+                AVLTreeCustomMemoryManagerEncDec.main(new String[]{});
 
                 String result = outputStream.toString();
 
@@ -37,11 +47,77 @@ class EncryptionTest {
                 Assertions.assertEquals(expectedResult, result, "Wrong expected result for input: " + file.getName());
             }
         }
+    }
 
-        FileOutputStream os   = new FileOutputStream("src/test/resources/output.txt");
-        int[]          list   = new int[300000];
-        Random         rand   = new Random();
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
+    @Test
+    @Order(0)
+    void testAlgorithmBench() throws IOException {
+        long start = System.currentTimeMillis();
+        File file  = new File(BASE_DIR + "/bench-input/input7.txt");
+        try (FileInputStream is = new FileInputStream(file)) {
+            System.setIn(is);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(outputStream));
+
+            AVLTreeCustomMemoryManagerEncDec.main(new String[]{});
+            long end = System.currentTimeMillis();
+            System.setOut(System.out);
+            ps.println((end - start) + "ms");
+
+            String result = outputStream.toString();
+
+            List<String> allLines       = Files.readAllLines(file.toPath());
+            String       expectedResult = allLines.get(allLines.size() - 1);
+            Assertions.assertEquals(expectedResult, result, "Wrong expected result for input: " + file.getName());
+        }
+    }
+
+    @Test
+    @Order(2)
+    void testAlgorithmDecBench30000() throws IOException {
+        File file = new File(BASE_DIR + "/bench-input/input6.txt");
+        try (FileInputStream is = new FileInputStream(file)) {
+            System.setIn(is);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(outputStream));
+
+            AVLTreeCustomMemoryManagerEncDec.main(new String[]{});
+
+            String result = outputStream.toString();
+
+            List<String> allLines       = Files.readAllLines(file.toPath());
+            String       expectedResult = allLines.get(allLines.size() - 1);
+            Assertions.assertEquals(expectedResult, result, "Wrong expected result for input: " + file.getName());
+        }
+    }
+
+    @Test
+    @Order(3)
+    void testAlgorithmDecBench300000() throws IOException {
+        long start = System.currentTimeMillis();
+        File file  = new File(BASE_DIR + "/bench-input/input8.txt");
+        try (FileInputStream is = new FileInputStream(file)) {
+            System.setIn(is);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(outputStream));
+
+            AVLTreeCustomMemoryManagerEncDec.main(new String[]{});
+            long end = System.currentTimeMillis();
+            ps.println((end - start) + "ms");
+
+            String result = outputStream.toString();
+
+            List<String> allLines       = Files.readAllLines(file.toPath());
+            String       expectedResult = allLines.get(allLines.size() - 1);
+            Assertions.assertEquals(expectedResult, result, "Wrong expected result for input: " + file.getName());
+        }
+    }
+
+    void generateTestData() throws IOException {
+        FileOutputStream os     = new FileOutputStream(BASE_DIR + "/output.txt");
+        int[]            list   = new int[300000];
+        Random           rand   = new Random();
+        BufferedWriter   writer = new BufferedWriter(new OutputStreamWriter(os));
 
         for (int i = 0; i < 300000; i++) {
             list[i] = rand.nextInt(300000);
@@ -49,9 +125,8 @@ class EncryptionTest {
                 list[i] = 1;
             }
         }
-//        writer.newLine();
 
-        int[] encrypted = Encryption.encrypt(list, 300000, 300000);
+        int[] encrypted = AVLTreeCustomMemoryManagerEncDec.encrypt(list, 300000, 300000);
         for (int i = 0; i < 300000; i++) {
 
             writer.write(String.valueOf(encrypted[i]));
@@ -68,100 +143,11 @@ class EncryptionTest {
                 writer.write(" ");
             }
         }
-//
-
-
         writer.close();
     }
 
-    @Test
-    void testAlgorithmBench() throws IOException {
-        File file = new File("src/test/resources/bench_input/input7.txt");
-        try (FileInputStream is = new FileInputStream(file)) {
-            System.setIn(is);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outputStream));
-
-            Encryption.main(new String[]{});
-
-            String result = outputStream.toString();
-
-            List<String> allLines       = Files.readAllLines(file.toPath());
-            String       expectedResult = allLines.get(allLines.size() - 1);
-            Assertions.assertEquals(expectedResult, result, "Wrong expected result for input: " + file.getName());
-        }
-    }
-
-    @Test
-    void testAlgorithmDecBench() throws IOException {
-        File file = new File("src/test/resources/bench_input/input5.txt");
-        try (FileInputStream is = new FileInputStream(file)) {
-            System.setIn(is);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outputStream));
-
-            Encryption.main(new String[]{});
-
-            String result = outputStream.toString();
-
-            List<String> allLines       = Files.readAllLines(file.toPath());
-            String       expectedResult = allLines.get(allLines.size() - 1);
-            Assertions.assertEquals(expectedResult, result, "Wrong expected result for input: " + file.getName());
-        }
-    }
-
-    @Test
-    void testAlgorithmDecBench1() throws IOException {
-        File file = new File("src/test/resources/bench_input/input8.txt");
-        try (FileInputStream is = new FileInputStream(file)) {
-            System.setIn(is);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outputStream));
-
-            Encryption.main(new String[]{});
-
-            String result = outputStream.toString();
-
-            List<String> allLines       = Files.readAllLines(file.toPath());
-            String       expectedResult = allLines.get(allLines.size() - 1);
-            Assertions.assertEquals(expectedResult, result, "Wrong expected result for input: " + file.getName());
-        }
-    }
-
-    //@Test
-    void testIterations() {
-        //ArrayList<Integer> list1 = new ArrayList(300000);
-        //ArrayList<Integer> list2 = new ArrayList(30000);
-
-/*
-        int[]                           list1 = new int[300000];
-        int[] list2 = new int[300000];
-*/
-
-        for (int i = 0; i < 300000; i++) {
-        }
-
-/*
-        for (int j = 0; j < 300000; j++) {
-            list2[j] = j;
-        }
-*/
-
-
-
-/*
-        for (int i = 0; i < 300000; i++) {
-            for (int j = 0; j < 300000; j++) {
-                int b = list1[i] + list2[j];
-            }
-        }
-*/
-
-    }
-
-
     private static List<File> readFiles() throws IOException {
-        try (Stream<Path> paths = Files.list(Paths.get("src/test/resources/input"))) {
+        try (Stream<Path> paths = Files.list(Paths.get(BASE_DIR + "/input"))) {
             return paths.map(Path::toFile).collect(Collectors.toList());
         }
     }

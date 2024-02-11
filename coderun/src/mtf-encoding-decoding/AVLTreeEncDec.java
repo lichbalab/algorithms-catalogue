@@ -7,17 +7,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * MTF (Move-To-Front) encryption implemented based on AVL Tree.
+ *
  * <p>
- * Time: O(n*m/2)
+ * Time: O(n*log(m))
  * Memory: O(n + m)
  */
-public class Encryption {
-
-    static int count = 0;
+public class AVLTreeEncDec {
 
     public static void main(String[] args) throws IOException {
-
-        count++;
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String[]       params = reader.readLine().split(" ");
         int            n      = Integer.parseInt(params[0]);
@@ -51,221 +49,61 @@ public class Encryption {
         reader.close();
     }
 
-    static class RearrangingIntList {
-
-
-        int[] permutation;
-
-        int m;
-
-        int head;
-
-        int tail;
-
-        Map<Integer, Integer> valueToIndex = new HashMap<>();
-
-        AugmentedAVLTree avl;
-
-        public RearrangingIntList(int n, int m, boolean encryption) {
-            avl = new AugmentedAVLTree();
-
-            if (!encryption) {
-                permutation = new int[n + m];
-            } else {
-                valueToIndex = new HashMap<>(m);
-            }
-
-            for (int i = 0; i < m; i++) {
-                if (!encryption) {
-                    avl.insert(i + n);
-                    permutation[i + n] = i + 1;
-                } else {
-                    valueToIndex.put(i + 1, i + n);
-                }
-            }
-
-            this.m = m;
-            this.head = n;
-            this.tail = n + m - 1;
-        }
-
-        public int findIndexAndMoveToBeginning(int value) {
-            int index = valueToIndex.get(value);
-
-            if (index == head) {
-                return 1;
-            }
-
-            int shift = avl.countElementsNotMoreThan(index);
-            int pos   = index - head - shift + 1;
-
-            head = head - 1;
-            avl.insert(index);
-            valueToIndex.put(value, head);
-            return pos;
-        }
-
-        public int getValueAndMoveToBeginning(int pos) {
-            if (pos == 1) {
-                return permutation[head];
-            }
-
-            int index = avl.findElementByPosition(pos - 1);
-
-            int value = permutation[index];
-
-            head = head - 1;
-            permutation[head] = value;
-            avl.remove(index);
-            avl.insert(head);
-
-            return value;
-        }
-    }
-
-    public static int[] encrypt1(int[] text, int n, int m) {
-        int[] permutation = new int[m];
-        for (int i = 0; i < m; i++) {
-            permutation[i] = i + 1;
-        }
-
-        int[] encryptedText = new int[n];
-
-        for (int i = 0; i < n; i++) {
-            int x = text[i];
-            int y = findIndexAndMoveToBeginning(permutation, x, m);
-            encryptedText[i] = y;
-        }
-
-        return encryptedText;
-    }
-
     public static int[] encrypt(int[] text, int n, int m) {
-        RearrangingIntList permutation   = new RearrangingIntList(n, m, true);
-        int[]              encryptedText = new int[n];
+        AugmentedAVLTree avl         = new AugmentedAVLTree();
+        int[]            permutation = new int[m];
 
-        for (int i = 0; i < n; i++) {
-            int x = text[i];
-            int y = permutation.findIndexAndMoveToBeginning(x);
-            encryptedText[i] = y;
-        }
-
-        return encryptedText;
-    }
-
-    public static int[] decrypt(int[] encryptedText, int n, int m) {
-        RearrangingIntList permutation = new RearrangingIntList(n, m, false);
-
-        int[] decryptedText = new int[n];
-        for (int i = 0; i < n; i++) {
-            int y = encryptedText[i];
-            int x = permutation.getValueAndMoveToBeginning(y);
-            decryptedText[i] = x;
-        }
-
-        return decryptedText;
-    }
-
-    public static int[] decrypt1(int[] encryptedText, int n, int m) {
-
-        int[] permutation = new int[m];
         for (int i = 0; i < m; i++) {
+            avl.insert(i + 1);
             permutation[i] = i + 1;
         }
 
-        int[] decryptedText = new int[n];
+        int[] encText = new int[n];
         for (int i = 0; i < n; i++) {
-            int y = encryptedText[i];
-            int x = permutation[y - 1];
-            decryptedText[i] = x;
-            moveToBeginning(permutation, y - 1);
+            //find index and move to the beginning
+            int value = text[i];
+            int val   = permutation[value - 1];
+            int index = avl.findPositionByValue(val);
+            avl.remove(val);
+            avl.min = avl.min - 1;
+            permutation[value - 1] = avl.min;
+            avl.insert(avl.min);
+
+            encText[i] = index + 1;
         }
 
-        return decryptedText;
+        return encText;
     }
 
-    public static void moveToBeginning(int[] arr, int position) {
-        // Save the element to move
-        int toMove = arr[position];
+    public static int[] decrypt(int[] encText, int n, int m) {
+        AugmentedAVLTree avl = new AugmentedAVLTree();
+        Map<Integer, Integer> map = new HashMap<>(n);
 
-        // Shift elements to the left to fill the gap
-        for (int i = position; i > 0; i--) {
-            arr[i] = arr[i - 1];
-        }
-
-        // Place the saved element at the beginning
-        arr[0] = toMove;
-    }
-
-    public static int findIndexAndMoveToBeginning(int[] arr, int target, int m) {
-        int previous = -1;
         for (int i = 0; i < m; i++) {
-            int current = arr[i];
-            if (previous != -1) {
-                arr[i] = previous;
-            }
-            previous = current;
-            if (current == target) {
-                arr[0] = current;
-                return i + 1;
-            }
-        }
-        return -1; // Element not found
-    }
-
-
-    public static class ArrayTreeSet {
-        private int[] arr;
-        private int   size;
-
-        public ArrayTreeSet(int capacity) {
-            arr = new int[capacity];
-            size = 0;
+                avl.insert(i + 1);
+                map.put(i + 1, i + 1);
         }
 
-        // Adds a new element if it doesn't already exist in the set
-        public boolean add(int value, int pos) {
-            // Shift elements to the right to make space for the new element
-            for (int i = size; i > pos; i--) {
-                arr[i] = arr[i - 1];
-            }
+        int[] decText = new int[n];
+        for (int i = 0; i < n; i++) {
+            //get value and move to the beginning
+            int val   = avl.removeAtPosition(encText[i] - 1);
+            int value = map.get(val);
+            avl.min = avl.min - 1;
+            map.put(avl.min, value);
+            avl.insert(avl.min);
 
-            // Insert the new element
-            arr[pos] = value;
-            size++;
-            return true;
+            decText[i] =  value;
         }
 
-        // Binary search to find the insertion point or existing element
-        public int binarySearch(int value) {
-            int low  = 0;
-            int high = size - 1;
-
-            while (low <= high) {
-                int mid    = (low + high) >>> 1;
-                int midVal = arr[mid];
-
-                if (midVal < value)
-                    low = mid + 1;
-                else if (midVal > value)
-                    high = mid - 1;
-                else
-                    return mid; // Element found
-            }
-
-            return low; // Element not found, should be inserted at low
-        }
-
-        // Checks if the set contains the specified element
-        public boolean contains(int value) {
-            int pos = binarySearch(value);
-            return pos < size && arr[pos] == value;
-        }
+        return decText;
     }
 
     static class AVLNode {
-        int     value;
-        AVLNode left, right;
+        int value;
+        int priority;
+        AVLNode left;
+        AVLNode right;
         int height;
         int count; // Number of nodes in the subtree rooted at this node, including this node
 
@@ -277,7 +115,11 @@ public class Encryption {
     }
 
     static class AugmentedAVLTree {
+
+        int     holder;
         AVLNode root;
+
+        int min = 1;
 
         // A utility function to get the height of the tree
         private int height(AVLNode N) {
@@ -343,7 +185,9 @@ public class Encryption {
         // with node and returns the new root of the subtree.
         AVLNode insert(AVLNode node, int value) {
             /* 1. Perform the normal BST insertion */
-            if (node == null) return (new AVLNode(value));
+            if (node == null) {
+                return (new AVLNode(value));
+            }
 
             if (value < node.value) node.left = insert(node.left, value);
             else if (value > node.value) node.right = insert(node.right, value);
@@ -408,7 +252,6 @@ public class Encryption {
             }
         }
 
-
         // Public wrapper method to call the private recursive method
         public int countElementsNotMoreThan(int value) {
             return countLessThanEqualTo(root, value);
@@ -424,10 +267,6 @@ public class Encryption {
                 // Include the current node + all nodes in its right subtree
                 return size(node.right) + 1 + countMoreThanEqualTo(node.left, value);
             }
-        }
-
-        public int countMoreThanEqualTo(int value) {
-            return countMoreThanEqualTo(root, value);
         }
 
         // Method to remove a value (simplified placeholder)
@@ -531,6 +370,104 @@ public class Encryption {
                 return -1; // Invalid position
             }
             return findElementByPositionRecursive(root, position + 1); // Adjust for 1-based indexing
+        }
+
+        public int removeAtPosition(int position) {
+            //int[] valueHolder = new int[1]; // To hold the value of the node to be removed.
+            root = removeAtPositionRecursive(root, position);
+            int value = holder;
+            holder = -1;
+            return value; // Return the value of the removed node.
+        }
+
+        private AVLNode removeAtPositionRecursive(AVLNode node, int position) {
+            if (node == null) {
+                return null;
+            }
+
+            int leftSize = size(node.left);
+
+            if (position < leftSize) {
+                node.left = removeAtPositionRecursive(node.left, position);
+            } else if (position > leftSize) {
+                // Adjust position for the right subtree
+                node.right = removeAtPositionRecursive(node.right, position - leftSize - 1);
+            } else {
+                // This is the node to be removed
+                holder = node.value; // Capture the value before removing
+                // Proceed with removal as in the removeRecursive method
+                if (node.left == null || node.right == null) {
+                    node = (node.left != null) ? node.left : node.right;
+                } else {
+                    AVLNode temp = minValueNode(node.right);
+                    node.value = temp.value;
+                    node.right = removeRecursive(node.right, temp.value);
+                }
+            }
+
+            if (node == null) return null; // In case of leaf deletion
+
+            // Update height and balance the tree as in the removeRecursive method
+            node.height = Math.max(height(node.left), height(node.right)) + 1;
+            node.count = 1 + size(node.left) + size(node.right);
+            return balanceNode(node);
+        }
+
+        private AVLNode balanceNode(AVLNode node) {
+            int balance = getBalance(node);
+            // Left Left Case
+            if (balance > 1 && getBalance(node.left) >= 0) {
+                return rightRotate(node);
+            }
+            // Left Right Case
+            if (balance > 1 && getBalance(node.left) < 0) {
+                node.left = leftRotate(node.left);
+                return rightRotate(node);
+            }
+            // Right Right Case
+            if (balance < -1 && getBalance(node.right) <= 0) {
+                return leftRotate(node);
+            }
+            // Right Left Case
+            if (balance < -1 && getBalance(node.right) > 0) {
+                node.right = rightRotate(node.right);
+                return leftRotate(node);
+            }
+            return node;
+        }
+
+        private int findPositionByValue(AVLNode node, int value, int currentPos) {
+            if (node == null) {
+                return -1; // Element not found
+            }
+            if (value < node.value) {
+                return findPositionByValue(node.left, value, currentPos);
+            } else if (value > node.value) {
+                // Add the size of the left subtree + 1 (for the current node) to currentPos
+                int leftSize = (node.left != null) ? node.left.count : 0;
+                return findPositionByValue(node.right, value, currentPos + leftSize + 1);
+            } else {
+                // Return the current position plus the size of the left subtree
+                int leftSize = (node.left != null) ? node.left.count : 0;
+                return currentPos + leftSize; // Node found
+            }
+        }
+
+        private AVLNode findNodeByValue(AVLNode node, int value) {
+            if (node == null) {
+                return null; // Node not found
+            }
+            if (value < node.value) {
+                return findNodeByValue(node.left, value);
+            } else if (value > node.value) {
+                return findNodeByValue(node.right, value);
+            } else {
+                return node; // Node found
+            }
+        }
+
+        public int findPositionByValue(int value) {
+            return findPositionByValue(root, value, 0);
         }
     }
 }

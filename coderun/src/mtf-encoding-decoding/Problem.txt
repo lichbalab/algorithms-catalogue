@@ -1,0 +1,10 @@
+Alice and Bob are still working in the data transmission security department and doing what they love - researching the newly invented encryption algorithm for cryptographic strength.
+
+The algorithm invented by Alice and Bob is very simple. During encryption, the algorithm takes the ciphertext characters one at a time and replaces that character with exactly one other character.
+The encoding used by Alice and Bob consists of mm characters, so we can assume that the text is a sequence of natural numbers not exceeding mm. During operation, the encryption algorithm supports permutation of natural numbers from 1 to m.
+At the beginning of the work, the permutation is identical, that is, pi=i for all i. When the algorithm receives the symbol xx as input, the algorithm replaces it with the number of the position in the permutation (in 1-indexing)
+where the symbol x is located, and also moves x to the beginning of the permutation.
+For example, if at some point in the algorithm’s operation the permutation of symbols in it is [4,2,1,3], and symbol 1 is given as input, then symbol 1 will be replaced by symbol 3, since 1 stands in the third position in the permutation,
+and the permutation takes the form [1,4,2,3]. It is easy to see that the result of encrypting a text consisting of nn natural numbers not exceeding m is also a text consisting of n natural numbers not exceeding m.
+
+To simplify the study, Alice and Bob decided to implement efficient encoding and decoding of texts using their algorithm, but Chuck, Craig and Eve disrupted their plans, so Alice and Bob ask you to implement their encoding algorithm.
