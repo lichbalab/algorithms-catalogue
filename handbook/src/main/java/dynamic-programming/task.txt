@@ -1,0 +1,10 @@
+You are playing the game <<Rocks>>: a game for two players with two sets of stones each
+
+n and m pieces With each move, one player can take the following combinations of stones:
+
+Take one stone from any set.
+Take two stones from one set
+Take two stones from one and one from the other.
+When a stone is taken away, it leaves the game. The player who takes the last stone wins. The first move is yours.
+
+You and your opponent are playing optimally.
