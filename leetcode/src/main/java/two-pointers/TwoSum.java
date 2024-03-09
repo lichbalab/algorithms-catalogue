@@ -1,7 +1,7 @@
 /**
- * https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/description/?envType=study-plan-v2&envId=top-interview-150
+ * <a href="https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/description/?envType=study-plan-v2&envId=top-interview-150">...</a>
  * <p>
- * Time: O(log(n/2) * n/2)
+ * Time: O(n*log(n/2)/2)
  * Memory: O(1)
  *
  */
