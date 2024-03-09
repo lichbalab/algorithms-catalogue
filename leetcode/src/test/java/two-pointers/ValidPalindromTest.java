@@ -11,6 +11,6 @@ public class ValidPalindromTest extends TestHelper {
 
     @Test
     public void algTest() {
-        super.testAlgorithmTest(input -> String.valueOf(VlaidPalindrom.isPalindrome(input)));
+        super.testAlgorithmTest(input -> String.valueOf(VlaidPalindrom.isPalindrome(input.getFirst())), 1);
     }
 }

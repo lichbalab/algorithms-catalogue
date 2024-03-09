@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -21,18 +22,27 @@ public abstract class TestHelper {
 
     protected abstract String getTestCasesPath();
 
-    protected void testAlgorithmTest(Function<String, String> test) {
+    protected void testAlgorithmTest(Function<List<String>, String> test, int inputLines) {
         List<File> files = readFiles();
         for (File file : files) {
             try {
                 List<String> allLines       = Files.readAllLines(file.toPath());
-                String result = test.apply(allLines.getFirst());
+                String result = test.apply(allLines.subList(0, inputLines));
                 String       expectedResult = allLines.getLast();
                 Assertions.assertEquals(expectedResult, result, "Wrong expected result for input: " + file.getName());
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
         }
+    }
+
+    protected int[] parseIntArrayString(String string) {
+        String[] values = string.substring(1, string.length() - 1).split("\\s*,\\s*");
+        int[]    data   = new int[values.length];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = Integer.parseInt(values[i]);
+        }
+        return data;
     }
 
     private List<File> readFiles() {

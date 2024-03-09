@@ -1,7 +1,13 @@
+/**
+ * https://leetcode.com/problems/valid-palindrome/description/?envType=study-plan-v2&envId=top-interview-150
+ * <p>
+ * Time: O(n/2)
+ * Memory: O(n)
+ *
+ */
 public class VlaidPalindrom {
 
     public static boolean isPalindrome(String s) {
-
         char[] chars = s.toLowerCase().toCharArray();
         int i = 0;
         int j = chars.length -1 ;
