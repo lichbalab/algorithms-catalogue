@@ -1,3 +1,5 @@
+package array_string;
+
 public class TrappingRainWaterBest {
     public int trap(int[] h) {
         int l = 0, r = h.length - 1, lmax = Integer.MIN_VALUE, rmax = Integer.MIN_VALUE, ans = 0;

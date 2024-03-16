@@ -1,3 +1,5 @@
+package recursion;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +38,7 @@ public class HanoiTowersTest {
     }
 
     private static List<File> readFiles() throws IOException {
-        try (Stream<Path> paths = Files.list(Paths.get("src/test/resources/recursion"))) {
+        try (Stream<Path> paths = Files.list(Paths.get("src/test/resources/recursion/hanoi-tower"))) {
             return paths.map(Path::toFile).collect(Collectors.toList());
         }
     }

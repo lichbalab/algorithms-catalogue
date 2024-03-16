@@ -1,3 +1,5 @@
+package array_string;
+
 import java.util.List;
 import java.util.Stack;
 

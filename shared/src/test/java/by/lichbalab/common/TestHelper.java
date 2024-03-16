@@ -1,3 +1,4 @@
+package by.lichbalab.common;
 
 import org.junit.jupiter.api.Assertions;
 

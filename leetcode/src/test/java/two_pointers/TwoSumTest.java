@@ -1,3 +1,6 @@
+package two_pointers;
+
+import by.lichbalab.common.TestHelper;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
