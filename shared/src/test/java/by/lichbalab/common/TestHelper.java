@@ -58,6 +58,28 @@ public abstract class TestHelper {
         }
     }
 
+    protected void testMainAlgorithmTest(Runnable main) {
+        List<File> files = readFiles();
+        for (File file : files) {
+            try (FileInputStream is = new FileInputStream(file)) {
+                System.setIn(is);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                System.setOut(new PrintStream(outputStream));
+
+                main.run();
+
+                String result = outputStream.toString();
+
+                List<String> allLines = Files.readAllLines(file.toPath());
+                String expectedResult = String.join("\n", allLines.subList(allLines.size() - 1, allLines.size()));
+                Assertions.assertEquals(expectedResult, result, "Wrong expected result for input: " + file.getName());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+
     protected int[] parseIntArrayString(String string) {
         String[] values = string.substring(1, string.length() - 1).split("\\s*,\\s*");
         int[]    data   = new int[values.length];
