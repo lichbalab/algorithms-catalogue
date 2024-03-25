@@ -1,5 +1,13 @@
 package array_string;
 
+/**
+ * <a href="https://leetcode.com/problems/merge-sorted-array/solutions/3436053/beats-100-best-c-java-python-and-javascript-solution-two-pointer-stl/">...</a>
+ * <p>
+ * Time: O(n  + m)
+ * Memory: O(m)
+ *
+ */
+
 public class MergeSortedArray {
     public void merge(int[] nums1, int m, int[] nums2, int n) {
         int c1 = 0;
