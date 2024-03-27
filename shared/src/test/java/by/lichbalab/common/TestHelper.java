@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,13 +20,26 @@ public abstract class TestHelper {
 
     protected abstract String getTestCasesPath();
 
+
+    protected void customAlgorithmTest(Consumer<List<String>> test) {
+        List<File> files = readFiles();
+        for (File file : files) {
+            try {
+                List<String> allLines = Files.readAllLines(file.toPath());
+                test.accept(allLines);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
     protected void testAlgorithmTest(Function<List<String>, String> test, int inputLines) {
         List<File> files = readFiles();
         for (File file : files) {
             try {
-                List<String> allLines       = Files.readAllLines(file.toPath());
+                List<String> allLines = Files.readAllLines(file.toPath());
                 String result = test.apply(allLines.subList(0, inputLines));
-                String       expectedResult = allLines.getLast();
+                String expectedResult = allLines.getLast();
                 Assertions.assertEquals(expectedResult, result, "Wrong expected result for input: " + file.getName());
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
@@ -77,12 +91,16 @@ public abstract class TestHelper {
 
 
     protected int[] parseIntArrayString(String string) {
-        String[] values = string.substring(1, string.length() - 1).split("\\s*,\\s*");
-        int[]    data   = new int[values.length];
-        for (int i = 0; i < data.length; i++) {
-            data[i] = Integer.parseInt(values[i]);
+        String str = string.substring(1, string.length() - 1).replaceAll("\\s","");
+        if (!str.isEmpty()){
+            String[] values = str.split(",");
+            int[] data = new int[values.length];
+            for (int i = 0; i < data.length; i++) {
+                data[i] = Integer.parseInt(values[i]);
+            }
+            return data;
         }
-        return data;
+        return new int[0];
     }
 
     private List<File> readFiles() {
