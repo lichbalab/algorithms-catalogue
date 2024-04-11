@@ -1,7 +1,7 @@
 package array_string;
 
 /**
- * <a href="https://leetcode.com/problems/merge-sorted-array/solutions/3436053/beats-100-best-c-java-python-and-javascript-solution-two-pointer-stl/">...</a>
+ * <a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/">...</a>
  * <p>
  * Time: O(n  + m)
  * Memory: O(m)
