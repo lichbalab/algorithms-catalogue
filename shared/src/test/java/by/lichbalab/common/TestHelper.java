@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -103,6 +104,25 @@ public abstract class TestHelper {
         return new int[0];
     }
 
+    protected int[][] parseIntIntArrayString(String input) {
+        String[] arrays = input.substring(2, input.length() - 2).split("],\\[");
+
+        // Initialize the result list
+        int[][] resultList = new int[arrays.length][];
+
+        // Iterate through each array and parse its elements
+        int i = 0;
+        for (String array : arrays) {
+            String[] elements = array.split(",");
+            resultList[i] = new int[elements.length];
+            int j = 0;
+            for (String element : elements) {
+                resultList[i][j] = Integer.parseInt(element);
+            }
+        }
+        return resultList;
+    }
+
     private List<File> readFiles() {
         try (Stream<Path> paths = Files.list(Paths.get("src/test/resources/" + getTestCasesPath()))) {
             return paths.map(Path::toFile).collect(Collectors.toList());
@@ -111,5 +131,4 @@ public abstract class TestHelper {
             return Collections.emptyList();
         }
     }
-
 }
