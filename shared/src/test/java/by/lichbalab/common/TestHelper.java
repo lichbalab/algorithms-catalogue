@@ -9,9 +9,10 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -102,6 +103,16 @@ public abstract class TestHelper {
             return data;
         }
         return new int[0];
+    }
+
+    protected Set<String> parseStringArray(String string) {
+        Set<String> set = new HashSet<>();
+        String str = string.substring(1, string.length() - 1).replaceAll("\\s","");
+        if (!str.isEmpty()){
+            String[] values = str.split(",");
+            Collections.addAll(set, values);
+        }
+        return set;
     }
 
     protected int[][] parseIntIntArrayString(String input) {
