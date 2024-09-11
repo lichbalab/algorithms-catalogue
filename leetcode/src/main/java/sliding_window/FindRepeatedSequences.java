@@ -55,7 +55,6 @@ public class FindRepeatedSequences{
         for (int i =0; i < k; i++) {
             hash+= (int)Math.pow(BASE_VAR, k - (i + 1)) * ENCODING.get(chars[i]);
         }
-
         return hash;
     }
 }
