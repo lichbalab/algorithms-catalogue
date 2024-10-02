@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  <a href="https://leetcode.com/problems/longest-repeating-character-replacement/description/">...</a> * <p>
  * Time complexity: O(n * k)
- * Space complexity: O(k)
+ * Space complexity: O(1)
  */
 
 public class RepeatingCharacterReplacement {
