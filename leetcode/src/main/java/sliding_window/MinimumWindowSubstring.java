@@ -18,26 +18,37 @@ public class MinimumWindowSubstring {
         int l = s.length();
         String minWindow = "";
         Map<Character, Integer> currentFrcs = getFrequencies(t);
+        Set<Character> positiveFrequencies = new HashSet<>(currentFrcs.keySet());
 
         while (end < l) {
             Character currentChar = s.charAt(end);
 
             if (currentFrcs.containsKey(currentChar)) {
-                currentFrcs.put(currentChar, currentFrcs.get(currentChar) - 1);
+                int frq = currentFrcs.get(currentChar) - 1;
+                if (frq == 0) {
+                    positiveFrequencies.remove(currentChar);
+                }
+                currentFrcs.put(currentChar, frq);
             }
 
-            if (allCharsInSubstring(currentFrcs)) {
+            if (positiveFrequencies.isEmpty()) {
                 start = trimWindow(s, currentFrcs, start, end);
                 minWindow = minWindow(s, minWindow, start, end);
 
-                currentFrcs.put(s.charAt(start), currentFrcs.getOrDefault(currentChar, 0) + 1);
+                int frq = currentFrcs.getOrDefault(currentChar, 0);
+                char startChar = s.charAt(start);
+                if (frq == 0) {
+                    positiveFrequencies.add(startChar);
+                }
+
+                currentFrcs.put(startChar, frq + 1);
                 start++;
             }
 
             end++;
         }
 
-        if (start < l && allCharsInSubstring(currentFrcs)) {
+        if (start < l && positiveFrequencies.isEmpty()) {
             start = trimWindow(s, currentFrcs, start, end);
             minWindow = minWindow(s, minWindow, start, end);
         }
@@ -67,17 +78,7 @@ public class MinimumWindowSubstring {
         if (minWindow.isEmpty() || minWindow.length() > end - start + 1) {
             minWindow = s.substring(start, end + 1);
         }
-
         return minWindow;
-    }
-
-    private static boolean allCharsInSubstring(Map<Character, Integer> currentFrcs) {
-        for (Integer value : currentFrcs.values()){
-            if (value > 0) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static Map<Character, Integer> getFrequencies(String s) {
