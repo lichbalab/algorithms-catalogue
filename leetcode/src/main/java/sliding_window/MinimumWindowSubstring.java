@@ -10,7 +10,6 @@ import java.util.Set;
  * Time complexity: O(n * k)
  * Space complexity: O(1)
  */
-
 public class MinimumWindowSubstring {
     public static String minWindow(String s, String t) {
         int start = 0;
