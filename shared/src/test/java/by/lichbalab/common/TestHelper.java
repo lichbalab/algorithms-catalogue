@@ -129,7 +129,9 @@ public abstract class TestHelper {
             int j = 0;
             for (String element : elements) {
                 resultList[i][j] = Integer.parseInt(element);
+                j++;
             }
+            i++;
         }
         return resultList;
     }
