@@ -105,6 +105,20 @@ public abstract class TestHelper {
         return new int[0];
     }
 
+    protected double[] parseDoubleArrayString(String string) {
+        String str = string.substring(1, string.length() - 1).replaceAll("\\s","");
+        if (!str.isEmpty()){
+            String[] values = str.split(",");
+            double[] data = new double[values.length];
+            for (int i = 0; i < data.length; i++) {
+                data[i] = Double.parseDouble(values[i]);
+            }
+            return data;
+        }
+        return new double[0];
+    }
+
+
     protected Set<String> parseStringArray(String string) {
         Set<String> set = new HashSet<>();
         String str = string.substring(1, string.length() - 1).replaceAll("\\s","");
