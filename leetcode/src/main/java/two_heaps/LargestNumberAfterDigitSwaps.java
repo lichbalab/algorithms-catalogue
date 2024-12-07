@@ -3,6 +3,12 @@ package two_heaps;
 import java.util.Collections;
 import java.util.PriorityQueue;
 
+/**
+ * <a href="https://leetcode.com/problems/largest-number-after-digit-swaps-by-parity/description/">...</a>
+ * <p>
+ * Time complexity: O(n * log(n))
+ * Space complexity: O(n)
+ */
 public class LargestNumberAfterDigitSwaps {
     public int largestInteger(int num) {
         String numChars = Integer.toString(num);
